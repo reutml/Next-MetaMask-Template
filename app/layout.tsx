@@ -19,7 +19,7 @@ export default function RootLayout({
     <html lang="en">
       <body className="bg-[#F4F4F5] px-3 py-2 md:py-3 lg:px-0 lg:max-w-screen-xl mx-auto">
         <NavBar />
-        {children}
+        {"אמא"}
       </body>
     </html>
   );

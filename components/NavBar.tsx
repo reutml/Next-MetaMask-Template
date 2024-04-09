@@ -83,6 +83,7 @@ export const NavBar = () => {
           <ConnectWalletButton />
         </MetaMaskProvider>
       </div>
+      
     </nav>
   );
 };

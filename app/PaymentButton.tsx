@@ -1,8 +1,11 @@
 // ./app/PaymentButton.tsx
 
+// Add the "use client" directive to mark the file as a client-side component
+"use client";
+
 import React, { useEffect, useState } from 'react';
-import { useClient } from 'next/client'; // Import the useClient hook
 import { Button } from "@/components/ui/button";
+import PaymentRequested from "@/app/PaymentRequested";
 
 interface PaymentProps {
   walletAddress: string;
@@ -17,9 +20,6 @@ const PaymentButton: React.FC<PaymentProps> = ({
   value,
   data = '',
 }) => {
-  // Mark this component as a client entry
-  useClient();
-
   const [paymentRequested, setPaymentRequested] = useState(false);
 
   useEffect(() => {
@@ -35,16 +35,16 @@ const PaymentButton: React.FC<PaymentProps> = ({
         const paymentData = {
           from: walletAddress,
           to: recipientAddress,
-          value: value,
-          data: data
+          value,
+          data,
         };
 
         // Send the payment request
         await window.ethereum.request({
-          method: 'eth_requestPayment',
+          method: 'eth_sendTransaction',
           params: [paymentData],
         });
-        
+
         // Mark payment as requested
         setPaymentRequested(true);
         
@@ -65,11 +65,8 @@ const PaymentButton: React.FC<PaymentProps> = ({
 
   return (
     <>
-      {!paymentRequested ? (
-        <Button onClick={handleButtonClick}>Request Payment</Button>
-      ) : (
-        <p>Payment requested successfully!</p>
-      )}
+      <Button onClick={handleButtonClick}>Request Payment</Button>
+      <PaymentRequested paymentRequested={paymentRequested} />
     </>
   );
 };

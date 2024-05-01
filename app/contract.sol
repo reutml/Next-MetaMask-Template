@@ -1,47 +1,48 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.0;
 
-contract TransferContract {
-    address payable public beneficiary;
-    string public name;
-    string public symbol;
-    uint256 public decimals;
-    uint256 public totalSupply;
+contract RoomAccess {
+    address public owner;
     mapping(address => uint256) public balances;
 
-    // Constructor to set the beneficiary address and initialize token-related variables
-    constructor(
-        address payable _beneficiary,
-        string memory _name,
-        string memory _symbol,
-        uint256 _decimals,
-        uint256 _totalSupply
-    ) {
-        beneficiary = _beneficiary;
-        name = _name;
-        symbol = _symbol;
-        decimals = _decimals;
-        totalSupply = _totalSupply;
-        balances[msg.sender] = _totalSupply;
+    // Define the prices for different room types
+    uint256 private constant PRIVATE_ROOM_PRICE = 10 ether;
+    uint256 private constant MEETING_ROOM_PRICE = 50 ether;
+    uint256 private constant LECTURE_ROOM_PRICE = 100 ether;
+
+    // Define events for logging room access
+    event PrivateRoomAccess(address indexed user, uint256 amount);
+    event MeetingRoomAccess(address indexed user, uint256 amount);
+    event LectureRoomAccess(address indexed user, uint256 amount);
+
+    constructor() {
+        owner = msg.sender;
     }
 
-    // Function to accept a payment and transfer 10% of it to the beneficiary
-    function transferTenPercentToBeneficiary() public payable {
-        require(msg.value > 0, "The transaction value should be more than 0");
-
-        // Calculate 10% of the transaction value
-        uint256 tenPercent = (msg.value * 10) / 100;
-
-        // Transfer 10% of the transaction value to the beneficiary
-        beneficiary.transfer(tenPercent);
-
-        // The rest of the funds go to the contract itself or can be handled differently
-        // For example, transferring the remaining 90% back to the sender or keeping it within the contract
+    // Function to allow users to access a private room by paying the fee
+    function accessPrivateRoom() public payable {
+        require(msg.value >= PRIVATE_ROOM_PRICE, "Insufficient payment for private room");
+        balances[msg.sender] += msg.value;
+        emit PrivateRoomAccess(msg.sender, msg.value);
     }
 
-    // Function to withdraw the contract's balance (for demonstration)
-    // In a real scenario, proper access control should be added
-    function withdraw() public {
-        payable(msg.sender).transfer(address(this).balance);
+    // Function to allow users to access a meeting room by paying the fee
+    function accessMeetingRoom() public payable {
+        require(msg.value >= MEETING_ROOM_PRICE, "Insufficient payment for meeting room");
+        balances[msg.sender] += msg.value;
+        emit MeetingRoomAccess(msg.sender, msg.value);
+    }
+
+    // Function to allow users to access a lecture room by paying the fee
+    function accessLectureRoom() public payable {
+        require(msg.value >= LECTURE_ROOM_PRICE, "Insufficient payment for lecture room");
+        balances[msg.sender] += msg.value;
+        emit LectureRoomAccess(msg.sender, msg.value);
+    }
+
+    // Function to withdraw contract balance by the owner
+    function withdrawBalance() public {
+        require(msg.sender == owner, "Only the owner can withdraw");
+        payable(owner).transfer(address(this).balance);
     }
 }
